@@ -213,7 +213,7 @@ function renderContent(forExport){
     const base=Math.min(1035/tw*100, 216/asc*100), k=S.titleScale/100, size=base*k;
     // anchor on the word's vertical middle at default size, so the size slider grows/shrinks from there
     const mid=(td-ta)/100*base/2; // offset of middle from baseline at base size
-    const baseline=326+mid-mid*k;
+    const baseline=317+mid-mid*k;
     ctx.save();ctx.textAlign='left';
     let x=W/2-tw*size/100/2;
     for(const [str,f] of runs){ctx.font=size+'px '+f;ctx.fillText(str,x,baseline);x+=ctx.measureText(str).width}
