@@ -99,7 +99,7 @@ label .v{float:right;color:#cfcfcf;font-variant-numeric:tabular-nums}
     <div id="bg3W"><label>Gradient bottom</label><div class="swatches" id="bg3Sw"></div></div>
     <label>Ink</label>
     <div class="swatches" id="inkSw"></div>
-    <label class="check"><input type="checkbox" id="logo" checked> Show logo</label>
+    <label class="check"><input type="checkbox" id="logo" checked> Show THE CORNER, CLAPHAM</label>
   </fieldset>
 
   <fieldset><legend>Border</legend>
@@ -121,16 +121,8 @@ label .v{float:right;color:#cfcfcf;font-variant-numeric:tabular-nums}
 <script>
 const W=1080,H=1350;
 const GOTHIC='"alternate-gothic-atf", "Arial Narrow", sans-serif';
+const VENUE='THE CORNER, CLAPHAM';
 const GOTHIC_COND='"alternate-gothic-condensed-a", "alternate-gothic-atf", "Arial Narrow", sans-serif';
-const LOGO_SVG=atob('__LOGO__');
-let logoImg=null,logoInk=null;
-function logoFor(ink){
-  if(logoInk===ink&&logoImg)return logoImg;
-  logoInk=ink;const i=new Image();
-  i.onload=()=>render();
-  i.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(LOGO_SVG.replace(/#121212/gi,ink));
-  return logoImg=i;
-}
 const SCRIPT='"Calgary Script", cursive';
 const SWASH='"Calgary Script Swash", cursive';
 const BORDER_SIZE=50,BORDER_SOFT=40;
@@ -262,8 +254,12 @@ function renderContent(forExport){
   // address
   ctx.letterSpacing='0.6px';gothicFit(up(S.address),300,33,W/2,1074,900);ctx.letterSpacing='0px';
 
-  // logo
-  if(S.logo){const L=logoFor(S.ink);if(L.complete&&L.naturalWidth){const w=473,h=w*163.98/492.66;ctx.drawImage(L,(W-w)/2+1,1146,w,h)}}
+  // venue
+  // venue line, set as on the Dense Type poster: Alternate Gothic ATF 700, centred,
+  // as wide as the default address line and in the space the logo used to take
+  if(S.logo){ctx.font='700 100px '+GOTHIC;const k=620/ctx.measureText(VENUE).width;
+    const f='700 '+(100*k).toFixed(2)+'px '+GOTHIC;ctx.font=f;const cap=ctx.measureText('H').actualBoundingBoxAscent;
+    textC(VENUE,W/2,1224+cap/2,f)}
 }
 function sideBlock(str,cx){
   const lines=str.split('\n').filter(l=>l.trim()!=='').slice(0,4);

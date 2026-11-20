@@ -6,7 +6,7 @@ A = R / 'assets'
 b64 = lambda p: base64.b64encode((A / p).read_bytes()).decode()
 photo_js = (R / 'src/photo.js').read_text()
 MAP = {
- 'corner-poster-editor.html': {'CALGARY':'fonts/calgary-script.otf','PLAIN':'fonts/calgary-script-no-calt.otf','LOGO':'images/tcc-logo.svg','PHOTO':'images/corner-default-photo.jpg'},
+ 'corner-poster-editor.html': {'CALGARY':'fonts/calgary-script.otf','PLAIN':'fonts/calgary-script-no-calt.otf','PHOTO':'images/corner-default-photo.jpg'},
  'dense-type-editor.html': {'PHOTO':'images/dense-default-photo.jpg'},
  'index.html': {'THC':'images/thumb-corner.jpg','THD':'images/thumb-dense.jpg'},
 }
