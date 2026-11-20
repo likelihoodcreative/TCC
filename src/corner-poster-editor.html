@@ -212,7 +212,7 @@ function renderContent(forExport){
   }
 
   // subtitle
-  gothicFit(up(S.subtitle),600,67,W/2,445,980);
+  gothicFit(up(S.subtitle),800,67,W/2,445,980);
 
   // image box
   ctx.save();ctx.beginPath();ctx.rect(BOX.x,BOX.y,BOX.w,BOX.h);ctx.clip();
@@ -239,7 +239,7 @@ function renderContent(forExport){
   sideBlock(up(S.right),917);
 
   // footer
-  gothicFit(up(S.footer),600,74,W/2,972,980);
+  gothicFit(up(S.footer),800,74,W/2,972,980);
 
   // address
   ctx.letterSpacing='0.6px';gothicFit(up(S.address),300,33,W/2,1074,900);ctx.letterSpacing='0px';
@@ -251,10 +251,10 @@ function sideBlock(str,cx){
   const lines=str.split('\n').filter(l=>l.trim()!=='').slice(0,4);
   if(!lines.length)return;
   const cap=37,lead=48;
-  let f=gothic(900,cap);
+  let f=gothic(700,cap);
   ctx.font=f;
   const widest=Math.max(...lines.map(l=>ctx.measureText(l).width));
-  if(widest>250)f=gothic(900,cap*250/widest);
+  if(widest>250)f=gothic(700,cap*250/widest);
   const mid=(BOX.y+BOX.h/2)+4;
   const top=mid-((lines.length-1)*lead)/2+cap/2;
   lines.forEach((l,i)=>textC(l,cx,top+i*lead,f));
