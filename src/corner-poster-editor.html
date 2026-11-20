@@ -87,7 +87,7 @@ label .v{float:right;color:#cfcfcf;font-variant-numeric:tabular-nums}
       <div><label>Right</label><textarea id="right"></textarea></div>
     </div>
     <label>Footer line</label><input type="text" id="footer">
-    <label>Address</label><input type="text" id="address">
+    <label>Address (two lines)</label><textarea id="address" rows="2"></textarea>
   </fieldset>
 
   <fieldset><legend>Colour</legend>
@@ -128,8 +128,8 @@ const BORDER_SIZE=50,BORDER_SOFT=40;
 const greyHex=g=>{const v=Math.round(255*(1-g/100)).toString(16).padStart(2,'0');return '#'+v+v+v};
 const BGS=['#DE312D','#EB5E2D','#F2C230','#2E7D5B','#1F4FA3','#D93A6A','#111111','#F3EDE2'];
 const INKS=['#2A2A2A','#000000','#FFFFFF','#F3EDE2','#EB5E2D'];
-const DEFAULTS={kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St, London SW4 7UR',bg:'#DE312D',bgMode:'1',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#2A2A2A',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
-const KEY='corner-poster-v3';
+const DEFAULTS={kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St,\nLondon SW4 7UR',bg:'#DE312D',bgMode:'1',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#2A2A2A',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
+const KEY='corner-poster-v4';
 const DEFAULT_PHOTO='data:image/jpeg;base64,__PHOTO__';
 function loadDefaultPhoto(){const i=new Image();i.onload=()=>setPhoto(i);i.src=DEFAULT_PHOTO}
 let S=Object.assign({},DEFAULTS);
@@ -220,8 +220,11 @@ function renderContent(forExport){
     ctx.restore();
   }
 
+  // vertical rhythm: subtitle, photo, footer, address and venue line are spaced by one equal gap G,
+  // with the photo kept where it is (centred on the poster)
+  const V=vstack();
   // subtitle
-  gothicFit(up(S.subtitle),700,67,W/2,445,980);
+  gothicFit(up(S.subtitle),700,V.subCap,W/2,V.subBase,980);
 
   // image box
   ctx.save();ctx.beginPath();ctx.rect(BOX.x,BOX.y,BOX.w,BOX.h);ctx.clip();
@@ -248,17 +251,27 @@ function renderContent(forExport){
   sideBlock(up(S.right),917);
 
   // footer
-  gothicFit(up(S.footer),700,74,W/2,972,980);
+  gothicFit(up(S.footer),700,V.footCap,W/2,V.footBase,980);
 
-  // address
-  ctx.letterSpacing='0.6px';gothicFit(up(S.address),300,33,W/2,1074,900);ctx.letterSpacing='0px';
+  // address, up to two lines
+  ctx.letterSpacing='0.6px';V.addr.forEach((l,i)=>gothicFit(l,300,V.addrCap,W/2,V.addrBase[i],900));ctx.letterSpacing='0px';
 
-  // venue
-  // venue line, set as on the Dense Type poster: Alternate Gothic ATF 700, centred,
-  // as wide as the default address line and in the space the logo used to take
-  if(S.logo){ctx.font='700 100px '+GOTHIC;const k=620/ctx.measureText(VENUE).width;
-    const f='700 '+(100*k).toFixed(2)+'px '+GOTHIC;ctx.font=f;const cap=ctx.measureText('H').actualBoundingBoxAscent;
-    textC(VENUE,W/2,1224+cap/2,f)}
+  // venue line, set as on the Dense Type poster: Alternate Gothic ATF 700, centred
+  if(S.logo)textC(VENUE,W/2,V.venueBase,V.venueFont);
+}
+function vstack(){
+  const subCap=67,footCap=74,addrCap=42,addrLead=addrCap*0.45,bottom=H-58; // bottom margin matches WHAT'S ON's top
+  const addr=(S.address||'').toUpperCase().split('\n').map(l=>l.trim()).filter(Boolean).slice(0,2);
+  ctx.font='700 100px '+GOTHIC;const k=620/ctx.measureText(VENUE).width;
+  const venueFont='700 '+(100*k).toFixed(2)+'px '+GOTHIC;ctx.font=venueFont;const venueCap=ctx.measureText('H').actualBoundingBoxAscent;
+  const addrH=addr.length?addr.length*addrCap+(addr.length-1)*addrLead:0;
+  const blocks=[footCap,addrH,S.logo?venueCap:0].filter(h=>h>0);
+  // gaps below the photo: one before each block; the same gap is used above the photo for the subtitle
+  const G=Math.max(16,(bottom-(BOX.y+BOX.h)-blocks.reduce((a,b)=>a+b,0))/blocks.length);
+  let y=BOX.y+BOX.h+G+footCap;const footBase=y;
+  const addrBase=[];if(addr.length){y+=G+addrCap;addrBase.push(y);if(addr[1]){y+=addrLead+addrCap;addrBase.push(y)}}
+  if(S.logo)y+=G+venueCap;
+  return{subCap,subBase:BOX.y-G,footCap,footBase,addr,addrCap,addrBase,venueFont,venueBase:y};
 }
 function sideBlock(str,cx){
   const lines=str.split('\n').filter(l=>l.trim()!=='').slice(0,4);
