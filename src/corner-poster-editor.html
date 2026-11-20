@@ -265,12 +265,14 @@ function vstack(){
   ctx.font='700 100px '+GOTHIC;const k=620/ctx.measureText(VENUE).width;
   const venueFont='700 '+(100*k).toFixed(2)+'px '+GOTHIC;ctx.font=venueFont;const venueCap=ctx.measureText('H').actualBoundingBoxAscent;
   const addrH=addr.length?addr.length*addrCap+(addr.length-1)*addrLead:0;
-  const blocks=[footCap,addrH,S.logo?venueCap:0].filter(h=>h>0);
-  // gaps below the photo: one before each block; the same gap is used above the photo for the subtitle
-  const G=Math.max(16,(bottom-(BOX.y+BOX.h)-blocks.reduce((a,b)=>a+b,0))/blocks.length);
-  let y=BOX.y+BOX.h+G+footCap;const footBase=y;
-  const addrBase=[];if(addr.length){y+=G+addrCap;addrBase.push(y);if(addr[1]){y+=addrLead+addrCap;addrBase.push(y)}}
-  if(S.logo)y+=G+venueCap;
+  // JUBEL and WEDNESDAYS sit a fixed, tighter gap from the photo; THE CORNER, CLAPHAM sits on the
+  // bottom margin; the address is centred in the space between WEDNESDAYS and the venue line
+  const G=40, footBase=BOX.y+BOX.h+G+footCap;
+  const end=S.logo?bottom-venueCap:bottom; // top of the venue line, or the bottom margin without it
+  const g2=Math.max(12,(end-footBase-addrH)/2);
+  const addrBase=[];let y=footBase;
+  if(addr.length){y+=g2+addrCap;addrBase.push(y);if(addr[1]){y+=addrLead+addrCap;addrBase.push(y)}}
+  y=bottom;
   return{subCap,subBase:BOX.y-G,footCap,footBase,addr,addrCap,addrBase,venueFont,venueBase:y};
 }
 function sideBlock(str,cx){
