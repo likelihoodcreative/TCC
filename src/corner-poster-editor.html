@@ -115,6 +115,7 @@ label .v{float:right;color:#cfcfcf;font-variant-numeric:tabular-nums}
 <script>
 const W=1080,H=1350;
 const GOTHIC='"alternate-gothic-atf", "Arial Narrow", sans-serif';
+const GOTHIC_COND='"alternate-gothic-condensed-a", "alternate-gothic-atf", "Arial Narrow", sans-serif';
 const LOGO_SVG=atob('__LOGO__');
 let logoImg=null,logoInk=null;
 function logoFor(ink){
@@ -152,8 +153,8 @@ function capRatio(font){ // cap height per px of font-size
   const r=ctx.measureText('H').actualBoundingBoxAscent/100||0.7;
   return capCache[font]=r;
 }
-function gothic(weight,cap){
-  const f=weight+' {s} '+GOTHIC;
+function gothic(weight,cap,fam){
+  const f=weight+' {s} '+(fam||GOTHIC);
   return f.replace('{s}',(cap/capRatio(f)).toFixed(2)+'px');
 }
 function textC(str,x,base,font){ctx.font=font;ctx.textAlign='center';ctx.textBaseline='alphabetic';ctx.fillText(str,x,base)}
@@ -251,10 +252,10 @@ function sideBlock(str,cx){
   const lines=str.split('\n').filter(l=>l.trim()!=='').slice(0,4);
   if(!lines.length)return;
   const cap=37,lead=48;
-  let f=gothic(700,cap);
+  let f=gothic(700,cap,GOTHIC_COND);
   ctx.font=f;
   const widest=Math.max(...lines.map(l=>ctx.measureText(l).width));
-  if(widest>250)f=gothic(700,cap*250/widest);
+  if(widest>250)f=gothic(700,cap*250/widest,GOTHIC_COND);
   const mid=(BOX.y+BOX.h/2)+4;
   const top=mid-((lines.length-1)*lead)/2+cap/2;
   lines.forEach((l,i)=>textC(l,cx,top+i*lead,f));
@@ -454,7 +455,7 @@ $('reset').onclick=()=>{S=Object.assign({},DEFAULTS);syncUI();loadDefaultPhoto()
 
 // ---------- fonts ----------
 syncUI();render();loadDefaultPhoto();
-Promise.allSettled([300,600,700,800,900].map(w=>document.fonts.load(w+' 40px "alternate-gothic-atf"')).concat(document.fonts.load('40px "Calgary Script"'),document.fonts.load('40px "Calgary Script Swash"'))).then(()=>{for(const k in capCache)delete capCache[k];render()});
+Promise.allSettled([300,600,700,800,900].map(w=>document.fonts.load(w+' 40px "alternate-gothic-atf"')).concat(document.fonts.load('700 40px "alternate-gothic-condensed-a"'),document.fonts.load('40px "Calgary Script"'),document.fonts.load('40px "Calgary Script Swash"'))).then(()=>{for(const k in capCache)delete capCache[k];render()});
 document.fonts.addEventListener('loadingdone',()=>{for(const k in capCache)delete capCache[k];render()});
 </script>
 </body>
