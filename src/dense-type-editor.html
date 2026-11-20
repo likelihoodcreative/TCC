@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate, noai, noimageai">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="referrer" content="no-referrer">
+<link rel="stylesheet" href="https://use.typekit.net/jnz7net.css">
+<title>Dense Type</title>
+<style>
+
+:root{--bg:#141414;--panel:#1d1d1d;--line:#2e2e2e;--ink:#eee;--mute:#8a8a8a;--accent:#DE312D}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:14px/1.4 system-ui,-apple-system,sans-serif}
+.app{display:grid;grid-template-columns:340px 1fr;height:100vh}
+aside{text-transform:uppercase;background:var(--panel);border-right:1px solid var(--line);overflow-y:auto;padding:20px 18px 40px}
+h1{font-family:"alternate-gothic-atf","Arial Narrow",sans-serif;font-weight:700;font-size:26px;letter-spacing:.01em;margin:0 0 2px;text-transform:uppercase}
+.sub{color:var(--mute);font-size:12px;margin-bottom:18px}
+fieldset{border:0;border-top:1px solid var(--line);margin:0;padding:14px 0 6px}
+legend{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);padding:0 6px 0 0}
+label{display:block;font-size:12px;color:var(--mute);margin:8px 0 4px}
+label .v{float:right;color:#cfcfcf;font-variant-numeric:tabular-nums}
+input[type=text],select{text-transform:uppercase;width:100%;background:#111;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:8px 10px;font:inherit}
+input[type=text]:focus,select:focus{outline:none;border-color:var(--accent)}
+.row{display:flex;gap:10px}.row>div{flex:1}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.swatches{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sw{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0;box-shadow:inset 0 0 0 1px #444}
+.sw.on{border-color:#fff}
+input[type=color]{width:30px;height:30px;border:0;background:none;padding:0;cursor:pointer}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;background:#2a2a2a;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 12px;font:inherit;cursor:pointer}
+.btn:hover{border-color:#555}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600;width:100%;padding:12px;margin-top:16px}
+.check{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:13px;margin-top:8px}
+.hint{font-size:11px;color:var(--mute);margin-top:6px}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{flex:1;background:#111;color:var(--mute);border:0;padding:8px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--accent);color:#fff}
+main{display:flex;align-items:center;justify-content:center;padding:28px;overflow:hidden;min-width:0}
+#stage{display:block;width:min(100%, calc((100vh - 56px) * 0.8));height:auto;aspect-ratio:1080/1350;box-shadow:0 20px 60px rgba(0,0,0,.5);touch-action:none}
+#stage.grabbing{cursor:grabbing!important}
+@media (max-width:820px){.app{grid-template-columns:1fr;height:auto}main{order:-1;padding:12px}#stage{width:100%}}
+.back{display:inline-flex;align-items:center;gap:6px;color:var(--mute);text-decoration:none;font-size:12px;border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin-bottom:16px}.back:hover{color:var(--ink);border-color:#555}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <a class="back" href="index.html">&larr; Back to brand tools</a>
+  <h1>Dense Type</h1>
+  <div class="sub">1080 × 1350 PNG · every line fills margin to margin</div>
+
+  <fieldset><legend>Header</legend>
+    <label>Line 1</label><input type="text" id="l1">
+    <label>Line 2 · address, then The Corner, Clapham (fixed, twice the size)</label><input type="text" id="l2a">
+    <label>Line 3</label><input type="text" id="l3">
+    <div class="hint">Each line is sized to run margin to margin.</div>
+  </fieldset>
+
+  <fieldset><legend>Repeat</legend>
+    <label>Word</label><input type="text" id="word">
+    <label>Columns</label>
+    <div class="seg" id="cols"><button data-v="auto">Auto</button><button data-v="2">2</button><button data-v="3">3</button></div>
+    <div class="hint">Auto uses 3 columns for words up to 5 letters, 2 for longer.</div>
+  </fieldset>
+
+  <fieldset><legend>Photo</legend>
+    <div class="row">
+      <button class="btn" id="pick" style="flex:1">Upload photo</button>
+      <button class="btn" id="clearImg">Remove</button>
+    </div>
+    <input type="file" id="file" accept="image/*" hidden>
+    <div class="hint">Click the box to add a photo. Drag it to move, scroll over it to resize.</div>
+    <label>Photo size <span class="v" id="zoomV">100%</span></label><input type="range" id="zoom" min="100" max="300" value="100">
+    <label class="check"><input type="checkbox" id="film"> Film look (Funsaver Ultramax 800)</label>
+    <label>Colour</label>
+    <div class="seg" id="tone"><button data-v="color">Colour</button><button data-v="bw">B&amp;W</button><button data-v="map">Black / blue map</button></div>
+    <label>Exposure <span class="v" id="exposureV">0.00</span></label><input type="range" id="exposure" min="-200" max="200" value="0">
+    <label>Grain <span class="v" id="grainV">0</span></label><input type="range" id="grain" min="0" max="20" value="0">
+    <label>Frame</label>
+    <div class="seg" id="frame"><button data-v="sq">1 × 1</button><button data-v="pt">1080 × 1350</button></div>
+    <label>Frame size <span class="v" id="sizeAdjV"></span></label><input type="range" id="sizeAdj" min="-20" max="20" value="0">
+    <button class="btn" id="resetPhoto" style="margin-top:10px;width:100%">Reset photo adjustments</button>
+  </fieldset>
+
+  <fieldset><legend>Style</legend>
+    <label>Background</label>
+    <div class="seg" id="bgMode"><button data-v="1">Solid</button><button data-v="2">2 colours</button><button data-v="3">3 colours</button></div>
+    <label id="bgL1">Colour</label><div class="swatches" id="bgSw"></div>
+    <div id="bg2W"><label>Gradient bottom</label><div class="swatches" id="bg2Sw"></div></div>
+    <div id="bg3W"><label>Gradient bottom</label><div class="swatches" id="bg3Sw"></div></div>
+    <label>Ink</label><div class="swatches" id="inkSw"></div>
+  </fieldset>
+
+  <button class="btn primary" id="download">Download PNG</button>
+  <div class="row" style="margin-top:8px"><button class="btn" id="reset" style="flex:1">Reset to template</button></div>
+</aside>
+<main><canvas id="stage" width="1080" height="1350"></canvas></main>
+</div>
+
+<script>
+{
+const W=1080,H=1350;
+const M=W*0.05; // margin: 5% of frame width (double margin 10%)
+const VENUE='THE CORNER, CLAPHAM';
+const BGS=['#DE312D','#EB5E2D','#F2C230','#F08BB0','#2E7D5B','#1F4FA3','#E9E4DA','#111111'];
+const INKS=['#2A2A2A','#000000','#FFFFFF','#E9E4DA','#DE312D'];
+const DEFAULTS={l1:'Book your birthday at TCC',l2a:'44-48 Clapham High St, London SW4 7UR',l3:'BYO Cake',word:'Cake',cols:'auto',
+  sizeAdj:0,bgMode:'2',bg:'#DE312D',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#2A2A2A',frame:'pt',film:true,exposure:0,grain:20,tone:'map'};
+const KEY='dense-type-v4';
+const DEFAULT_PHOTO='data:image/jpeg;base64,__PHOTO__';
+function loadDefaultPhoto(){const i=new Image();i.onload=()=>setPhoto(i);i.src=DEFAULT_PHOTO}
+let S=Object.assign({},DEFAULTS);
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)Object.assign(S,s)}catch(e){}
+for(const k in DEFAULTS)if(S[k]==null)S[k]=DEFAULTS[k];
+S.grain=Math.min(20,S.grain);
+let img=null,pan={x:0,y:0},zoom=1;
+const cv=document.getElementById('stage'),ctx=cv.getContext('2d');
+const $=id=>document.getElementById(id);
+const up=s=>(s||'').toUpperCase().trim();
+
+// ---------- type helpers ----------
+// Alternate Gothic ATF Bold (Adobe Fonts kit)
+const FAM=['"alternate-gothic-atf"'];
+const font=(size,wd=0)=>'700 '+size.toFixed(2)+'px '+FAM[wd]+', "Arial Narrow", sans-serif';
+const capCache={};
+function capRatio(){if(capCache.n)return capCache.n;ctx.font=font(100);return capCache.n=(ctx.measureText('H').actualBoundingBoxAscent||72)/100}
+function w100(str,wd=0){if(!str)return 0;ctx.font=font(100,wd);return ctx.measureText(str).width/100} // width per px of font size
+
+// ---------- layout ----------
+function layout(){
+  const CW=W-2*M,cr=capRatio();
+  const t1=up(S.l1),t2a=up(S.l2a),t2b=VENUE,t3=up(S.l3),word=up(S.word);
+  // every line is fitted by its ink, not its advance width: left edge of the first glyph sits on the left
+  // margin and the right edge of the last glyph on the right margin (side bearings grow with size, so
+  // aligning by advance makes small text stick out past big text)
+  const fitLine=parts=>{ // parts: [[text, size relative to the line]]
+    let s=100,placed,right;
+    for(let i=0;i<6;i++){
+      let x=M;placed=[];
+      parts.forEach(([t,rel],j)=>{ctx.font=font(s*rel);const m=ctx.measureText(t);
+        if(j===0)x=M+m.actualBoundingBoxLeft;
+        placed.push({t,s:s*rel,x});right=x+m.actualBoundingBoxRight;x+=m.width});
+      const span=right-M;if(Math.abs(span-CW)<0.2)break;s*=CW/span;
+    }
+    return{placed,s};
+  };
+  // line 2: address at half the size of the venue, one space (at address size), then the venue
+  const F1=t1?fitLine([[t1,1]]):null, F2=fitLine(t2a?[[t2a+' ',0.5],[t2b,1]]:[[t2b,1]]), F3=t3?fitLine([[t3,1]]):null;
+  const s1=F1?F1.s:0,v=F2.s,s3=F3?F3.s:0;
+  // equal gaps between lines 1-2 and 2-3: the larger of the two, with room for comma tails
+  const gap=0.3*Math.max(s1,v);
+  const lines=[],add=(F,y)=>F.placed.forEach(p=>lines.push({t:p.t,s:p.s,y,x:p.x}));
+  let y=M;
+  if(F1){y+=cr*s1;add(F1,y);y+=gap}
+  y+=cr*v;add(F2,y);
+  if(F3){y+=gap+cr*s3;add(F3,y)}
+  const headerBase=y;
+  // repeat columns, also aligned by ink: first column on the left margin, last on the right, gutters = margin
+  const n=S.cols==='auto'?(word.length<=5?3:2):+S.cols, gut=M;
+  let Sw=0,il=0;
+  if(word){ctx.font=font(100);const m=ctx.measureText(word);il=m.actualBoundingBoxLeft/100;Sw=((CW-(n-1)*gut)/n)/((m.actualBoundingBoxLeft+m.actualBoundingBoxRight)/100)}
+  const colInk=(CW-(n-1)*gut)/n,h=cr*Sw,tight=h*0.1,pitch=h+tight;
+  const top=headerBase+2*M, bottom=H-M; // at least a double margin under the header; rows sit on the bottom margin
+  const rows=word?Math.max(0,Math.floor((bottom-top+tight)/pitch)):0;
+  const reps=[];
+  for(let r=0;r<rows;r++)for(let c=0;c<n;c++)reps.push({t:word,s:Sw,x:M+c*(colInk+gut)+il*Sw,y:bottom-r*pitch});
+  // photo box: double margin from left and bottom
+  const bw=W/2*(1+S.sizeAdj/100),bh=S.frame==='sq'?bw:bw*1350/1080;
+  const box={x:2*M,y:H-2*M-bh,w:bw,h:bh};
+  return{lines,reps,box};
+}
+
+// ---------- render ----------
+function render(forExport){
+  const L=layout();
+  if(S.bgMode==='1')ctx.fillStyle=S.bg;
+  else{const g=ctx.createLinearGradient(0,0,0,H);
+    if(S.bgMode==='2'){g.addColorStop(0,S.bg);g.addColorStop(1,S.bg2)}
+    else{g.addColorStop(0,S.bg);g.addColorStop(0.5,S.bg2);g.addColorStop(1,S.bg3)}
+    ctx.fillStyle=g}
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle=S.ink;ctx.textBaseline='alphabetic';
+  for(const l of L.lines){ctx.font=font(l.s);ctx.textAlign='left';ctx.fillText(l.t,l.x,l.y)}
+  ctx.textAlign='left';
+  for(const r of L.reps){ctx.font=font(r.s);ctx.fillText(r.t,r.x,r.y)}
+  const B=L.box;
+  ctx.save();ctx.beginPath();ctx.rect(B.x,B.y,B.w,B.h);ctx.clip();
+  ctx.fillStyle=S.ink;ctx.fillRect(B.x,B.y,B.w,B.h);
+  if(img&&proc){
+    const base=Math.max(B.w/proc.width,B.h/proc.height)*zoom,dw=proc.width*base,dh=proc.height*base;
+    const mx=Math.abs(dw-B.w)/2,my=Math.abs(dh-B.h)/2;
+    pan.x=Math.max(-mx,Math.min(mx,pan.x));pan.y=Math.max(-my,Math.min(my,pan.y));
+    ctx.imageSmoothingQuality='high';
+    ctx.drawImage(proc,B.x+(B.w-dw)/2+pan.x,B.y+(B.h-dh)/2+pan.y,dw,dh);
+    if(S.grain>0){ctx.globalCompositeOperation='overlay';ctx.globalAlpha=S.grain/100;
+      ctx.drawImage(grainTile(),0,0,B.w/1.3,B.h/1.3,B.x,B.y,B.w,B.h);
+      ctx.globalCompositeOperation='source-over';ctx.globalAlpha=1}
+  }else if(!forExport){
+    ctx.fillStyle='#777';ctx.font='600 22px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText('+ ADD PHOTO',B.x+B.w/2,B.y+B.h/2+8);
+  }
+  ctx.restore();
+}
+
+__PHOTOJS__
+// ---------- UI ----------
+const fields=['l1','l2a','l3','word'];
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function swatches(id,list,key){
+  const el=$(id);el.innerHTML='';
+  list.forEach(c=>{const b=document.createElement('button');b.className='sw'+(S[key].toLowerCase()===c.toLowerCase()?' on':'');b.style.background=c;b.title=c;
+    b.onclick=()=>{S[key]=c;syncUI();render();save()};el.appendChild(b)});
+  const p=document.createElement('input');p.type='color';p.value=S[key];
+  p.oninput=e=>{S[key]=e.target.value;render();save()};p.onchange=()=>syncUI();el.appendChild(p);
+}
+function syncUI(){
+  fields.forEach(k=>$(k).value=S[k]);
+  document.querySelectorAll('#cols button').forEach(b=>b.classList.toggle('on',b.dataset.v===String(S.cols)));
+  $('sizeAdj').value=S.sizeAdj;$('sizeAdjV').textContent=(S.sizeAdj>0?'+':'')+S.sizeAdj+'% · '+Math.round(W/2*(1+S.sizeAdj/100))+'px';
+  for(const id of ['frame','bgMode','tone'])document.querySelectorAll('#'+id+' button').forEach(b=>b.classList.toggle('on',b.dataset.v===S[id]));
+  $('bgL1').textContent=S.bgMode==='1'?'Colour':'Gradient top';
+  $('bg2W').style.display=S.bgMode==='1'?'none':'';$('bg3W').style.display=S.bgMode==='3'?'':'none';
+  $('bg2W').querySelector('label').textContent=S.bgMode==='3'?'Gradient middle':'Gradient bottom';
+  swatches('bg2Sw',BGS,'bg2');swatches('bg3Sw',BGS,'bg3');
+  $('film').checked=S.film;$('exposure').value=S.exposure;$('grain').value=S.grain;
+  $('exposureV').textContent=(S.exposure>0?'+':'')+(S.exposure/100).toFixed(2);$('grainV').textContent=S.grain;
+  swatches('bgSw',BGS,'bg');swatches('inkSw',INKS,'ink');
+}
+fields.forEach(k=>$(k).addEventListener('input',e=>{S[k]=e.target.value;render();save()}));
+document.querySelectorAll('#cols button').forEach(b=>b.onclick=()=>{S.cols=b.dataset.v;syncUI();render();save()});
+for(const id of ['frame','bgMode'])document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{S[id]=b.dataset.v;syncUI();render();save()});
+const num=(id,after)=>$(id).addEventListener('input',e=>{S[id]=+e.target.value;syncUI();(after||render)();save()});
+num('grain');num('sizeAdj');num('exposure',()=>processPhoto());
+$('film').onchange=e=>{S.film=e.target.checked;processPhoto();save()};
+document.querySelectorAll('#tone button').forEach(b=>b.onclick=()=>{S.tone=b.dataset.v;syncUI();processPhoto();save()});
+function setZoom(z){zoom=Math.max(1,Math.min(3,z));$('zoom').value=Math.round(zoom*100);$('zoomV').textContent=Math.round(zoom*100)+'%';render()}
+$('zoom').addEventListener('input',e=>setZoom(e.target.value/100));
+$('resetPhoto').onclick=()=>{S.film=DEFAULTS.film;S.tone='color';S.exposure=0;S.grain=DEFAULTS.grain;pan={x:0,y:0};syncUI();setZoom(1);processPhoto();save()};
+
+function loadFile(f){if(!f||!f.type.startsWith('image/'))return;const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>setPhoto(i);i.src=r.result};r.readAsDataURL(f)}
+$('pick').onclick=()=>$('file').click();
+$('file').onchange=e=>{loadFile(e.target.files[0]);e.target.value=''};
+$('clearImg').onclick=()=>{img=null;src=srcData=proc=null;render()};
+cv.addEventListener('dragover',e=>e.preventDefault());
+cv.addEventListener('drop',e=>{e.preventDefault();loadFile(e.dataTransfer.files[0])});
+function toCanvas(e){const r=cv.getBoundingClientRect();return{x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height}}
+const inBox=p=>{const B=layout().box;return p.x>=B.x&&p.x<=B.x+B.w&&p.y>=B.y&&p.y<=B.y+B.h};
+let drag=null;
+cv.addEventListener('pointerdown',e=>{const p=toCanvas(e);if(!inBox(p))return;if(!img){$('file').click();return}
+  drag={sx:p.x,sy:p.y,px:pan.x,py:pan.y};cv.setPointerCapture(e.pointerId);cv.classList.add('grabbing')});
+cv.addEventListener('pointermove',e=>{const p=toCanvas(e);
+  if(!drag){cv.style.cursor=inBox(p)?(img?'grab':'pointer'):'default';return}
+  pan.x=drag.px+(p.x-drag.sx);pan.y=drag.py+(p.y-drag.sy);render()});
+cv.addEventListener('pointerup',()=>{drag=null;cv.classList.remove('grabbing')});
+cv.addEventListener('wheel',e=>{if(!img||!inBox(toCanvas(e)))return;e.preventDefault();setZoom(zoom*Math.exp(-e.deltaY*0.0015))},{passive:false});
+
+$('download').onclick=()=>{render(true);cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);
+  const slug=(S.word||'poster').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  a.download='poster-'+slug+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);render()},'image/png')};
+$('reset').onclick=()=>{S=Object.assign({},DEFAULTS);syncUI();loadDefaultPhoto();save()};
+
+syncUI();render();loadDefaultPhoto();
+document.fonts.addEventListener('loadingdone',()=>{for(const k in capCache)delete capCache[k];render()});
+Promise.allSettled(FAM.map(f=>document.fonts.load('700 40px '+f)))
+  .then(()=>{for(const k in capCache)delete capCache[k];render()});
+}
+</script>
+</body>
+</html>
