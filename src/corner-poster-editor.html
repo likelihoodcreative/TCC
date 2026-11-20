@@ -132,6 +132,8 @@ const BGS=['#EB5E2D','#F2C230','#2E7D5B','#1F4FA3','#D93A6A','#111111','#F3EDE2'
 const INKS=['#000000','#FFFFFF','#F3EDE2','#EB5E2D'];
 const DEFAULTS={kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St, London SW4 7UR',bg:'#EB5E2D',ink:'#000000',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
 const KEY='corner-poster-v1';
+const DEFAULT_PHOTO='data:image/jpeg;base64,__PHOTO__';
+function loadDefaultPhoto(){const i=new Image();i.onload=()=>setPhoto(i);i.src=DEFAULT_PHOTO}
 let S=Object.assign({},DEFAULTS);
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)Object.assign(S,s)}catch(e){}
 for(const k in DEFAULTS)if(S[k]==null)S[k]=DEFAULTS[k];
@@ -448,10 +450,10 @@ $('download').onclick=()=>{
     const slug=(S.title||'poster').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     a.download='the-corner-'+slug+'.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),2000);render()},'image/png');
 };
-$('reset').onclick=()=>{S=Object.assign({},DEFAULTS);syncUI();render();save()};
+$('reset').onclick=()=>{S=Object.assign({},DEFAULTS);syncUI();loadDefaultPhoto();save()};
 
 // ---------- fonts ----------
-syncUI();render();
+syncUI();render();loadDefaultPhoto();
 Promise.allSettled([300,600,700,800,900].map(w=>document.fonts.load(w+' 40px "alternate-gothic-atf"')).concat(document.fonts.load('40px "Calgary Script"'),document.fonts.load('40px "Calgary Script Swash"'))).then(()=>{for(const k in capCache)delete capCache[k];render()});
 document.fonts.addEventListener('loadingdone',()=>{for(const k in capCache)delete capCache[k];render()});
 </script>
