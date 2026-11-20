@@ -190,7 +190,7 @@ function renderContent(forExport){
   const up=s=>(s||'').toUpperCase();
 
   // kicker
-  gothicFit(up(S.kicker),900,40,W/2,98,900);
+  gothicFit(up(S.kicker),700,40,W/2,98,900);
 
   // script title: fit width, capped by height
   if(S.title){
@@ -212,7 +212,7 @@ function renderContent(forExport){
   }
 
   // subtitle
-  gothicFit(up(S.subtitle),800,67,W/2,445,980);
+  gothicFit(up(S.subtitle),700,67,W/2,445,980);
 
   // image box
   ctx.save();ctx.beginPath();ctx.rect(BOX.x,BOX.y,BOX.w,BOX.h);ctx.clip();
@@ -239,7 +239,7 @@ function renderContent(forExport){
   sideBlock(up(S.right),917);
 
   // footer
-  gothicFit(up(S.footer),800,74,W/2,972,980);
+  gothicFit(up(S.footer),700,74,W/2,972,980);
 
   // address
   ctx.letterSpacing='0.6px';gothicFit(up(S.address),300,33,W/2,1074,900);ctx.letterSpacing='0px';
