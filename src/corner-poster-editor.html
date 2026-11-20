@@ -43,6 +43,9 @@ main{min-width:0}
 input.greyRange{-webkit-appearance:none;appearance:none;height:10px;border-radius:5px;background:linear-gradient(90deg,#fff,#000);margin:8px 0}
 input.greyRange::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);border:2px solid #fff}
 input.greyRange::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--accent);border:2px solid #fff}
+.seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:4px}
+.seg button{flex:1;background:#111;color:var(--mute);border:0;padding:8px;font:inherit;cursor:pointer}
+.seg button.on{background:var(--accent);color:#000}
 label .v{float:right;color:#cfcfcf;font-variant-numeric:tabular-nums}
 #stage.grab{cursor:grab}#stage.grabbing{cursor:grabbing!important}
 @media (max-width:820px){.app{grid-template-columns:1fr;height:auto}main{order:-1;padding:12px}#stage{width:100%}}
@@ -90,7 +93,10 @@ label .v{float:right;color:#cfcfcf;font-variant-numeric:tabular-nums}
 
   <fieldset><legend>Colour</legend>
     <label>Background</label>
-    <div class="swatches" id="bgSw"></div>
+    <div class="seg" id="bgMode"><button data-v="1">Solid</button><button data-v="2">2 colours</button><button data-v="3">3 colours</button></div>
+    <label id="bgL1">Colour</label><div class="swatches" id="bgSw"></div>
+    <div id="bg2W"><label>Gradient bottom</label><div class="swatches" id="bg2Sw"></div></div>
+    <div id="bg3W"><label>Gradient bottom</label><div class="swatches" id="bg3Sw"></div></div>
     <label>Ink</label>
     <div class="swatches" id="inkSw"></div>
     <label class="check"><input type="checkbox" id="logo" checked> Show logo</label>
@@ -129,10 +135,10 @@ const SCRIPT='"Calgary Script", cursive';
 const SWASH='"Calgary Script Swash", cursive';
 const BORDER_SIZE=50,BORDER_SOFT=40;
 const greyHex=g=>{const v=Math.round(255*(1-g/100)).toString(16).padStart(2,'0');return '#'+v+v+v};
-const BGS=['#EB5E2D','#F2C230','#2E7D5B','#1F4FA3','#D93A6A','#111111','#F3EDE2'];
+const BGS=['#DE312D','#EB5E2D','#F2C230','#2E7D5B','#1F4FA3','#D93A6A','#111111','#F3EDE2'];
 const INKS=['#000000','#FFFFFF','#F3EDE2','#EB5E2D'];
-const DEFAULTS={kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St, London SW4 7UR',bg:'#EB5E2D',ink:'#000000',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
-const KEY='corner-poster-v1';
+const DEFAULTS={kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St, London SW4 7UR',bg:'#DE312D',bgMode:'1',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#000000',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
+const KEY='corner-poster-v2';
 const DEFAULT_PHOTO='data:image/jpeg;base64,__PHOTO__';
 function loadDefaultPhoto(){const i=new Image();i.onload=()=>setPhoto(i);i.src=DEFAULT_PHOTO}
 let S=Object.assign({},DEFAULTS);
@@ -168,16 +174,27 @@ function gothicFit(str,weight,cap,x,base,maxW){
 // ---------- render ----------
 // content scale when the blurred border is on: content shrinks to sit inside the frame
 function frameK(){return S.border?1-2*(BORDER_SIZE+BORDER_SOFT*0.35)/W:1}
+function bgFill(c){ // solid colour or top-to-bottom gradient
+  if(S.bgMode==='1')return S.bg;
+  const g=c.createLinearGradient(0,0,0,H);
+  if(S.bgMode==='2'){g.addColorStop(0,S.bg);g.addColorStop(1,S.bg2)}
+  else{g.addColorStop(0,S.bg);g.addColorStop(0.5,S.bg2);g.addColorStop(1,S.bg3)}
+  return g;
+}
+let panelCv=null;
 function drawBackground(){
-  if(!S.border){ctx.fillStyle=S.bg;ctx.fillRect(0,0,W,H);return}
+  if(!S.border){ctx.fillStyle=bgFill(ctx);ctx.fillRect(0,0,W,H);return}
   ctx.fillStyle=greyHex(S.grey);ctx.fillRect(0,0,W,H);
   const i=BORDER_SIZE,r=Math.min(60,i*0.6),blur=BORDER_SOFT*1.2,off=W*4;
-  // blur via shadow so it works in every browser (ctx.filter isn't universal)
-  ctx.save();
-  ctx.shadowColor=S.bg;ctx.shadowBlur=blur;ctx.shadowOffsetX=off;
-  ctx.fillStyle=S.bg;ctx.beginPath();ctx.roundRect(i-off,i,W-2*i,H-2*i,r);ctx.fill();
-  ctx.restore();
-  if(blur<1){ctx.fillStyle=S.bg;ctx.beginPath();ctx.roundRect(i,i,W-2*i,H-2*i,r);ctx.fill()}
+  // soft panel: blur a white shape via shadow (works in every browser, unlike ctx.filter),
+  // then paint the background colour or gradient into it
+  panelCv=panelCv||Object.assign(document.createElement('canvas'),{width:W,height:H});
+  const p=panelCv.getContext('2d');p.clearRect(0,0,W,H);
+  p.save();p.shadowColor='#fff';p.shadowBlur=blur;p.shadowOffsetX=off;
+  p.fillStyle='#fff';p.beginPath();p.roundRect(i-off,i,W-2*i,H-2*i,r);p.fill();p.restore();
+  if(blur<1){p.fillStyle='#fff';p.beginPath();p.roundRect(i,i,W-2*i,H-2*i,r);p.fill()}
+  p.globalCompositeOperation='source-in';p.fillStyle=bgFill(p);p.fillRect(0,0,W,H);p.globalCompositeOperation='source-over';
+  ctx.drawImage(panelCv,0,0);
 }
 function render(forExport){
   drawBackground();
@@ -396,10 +413,15 @@ function photoUI(){$('film').checked=S.film;$('bw').checked=S.bw;$('exposure').v
 function syncUI(){
   fields.forEach(k=>$(k).value=S[k]);
   $('titleScale').value=S.titleScale;$('swash').checked=S.swash;$('logo').checked=S.logo;
-  swatches('bgSw',BGS,'bg');swatches('inkSw',INKS,'ink');borderUI();photoUI();
+  swatches('bgSw',BGS,'bg');swatches('inkSw',INKS,'ink');swatches('bg2Sw',BGS,'bg2');swatches('bg3Sw',BGS,'bg3');
+  document.querySelectorAll('#bgMode button').forEach(b=>b.classList.toggle('on',b.dataset.v===S.bgMode));
+  $('bgL1').textContent=S.bgMode==='1'?'Colour':'Gradient top';
+  $('bg2W').style.display=S.bgMode==='1'?'none':'';$('bg3W').style.display=S.bgMode==='3'?'':'none';
+  $('bg2W').querySelector('label').textContent=S.bgMode==='3'?'Gradient middle':'Gradient bottom';borderUI();photoUI();
 }
 fields.forEach(k=>$(k).addEventListener('input',e=>{S[k]=e.target.value;render();save()}));
 $('titleScale').addEventListener('input',e=>{S.titleScale=+e.target.value;render();save()});
+document.querySelectorAll('#bgMode button').forEach(b=>b.onclick=()=>{S.bgMode=b.dataset.v;syncUI();render();save()});
 $('swash').addEventListener('change',e=>{S.swash=e.target.checked;render();save()});
 $('logo').addEventListener('change',e=>{S.logo=e.target.checked;render();save()});
 function setZoom(z){zoom=Math.max(0.5,Math.min(3,z));$('zoom').value=Math.round(zoom*100);$('zoomV').textContent=Math.round(zoom*100)+'%';render()}
