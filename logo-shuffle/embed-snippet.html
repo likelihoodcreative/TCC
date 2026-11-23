@@ -1,0 +1,29 @@
+<!-- The Corner Clapham: random logo. Set data-base to the folder holding the 35 SVGs in logos/ (with trailing slash). -->
+<!-- data-trigger: load (default), hover, click, or view (re-rolls each time it scrolls back into view). Combine with spaces. -->
+<img data-tcc-logo data-base="https://YOUR-HOST/tcc-logos/" data-trigger="load hover"
+     alt="The Corner Clapham" width="676" height="246" style="width:100%;height:auto;display:block">
+<script>
+(()=>{
+  const names=Array.from({length:35},(_,i)=>String(i+1).padStart(2,'0'));
+  const pick=cur=>{let i;do i=Math.floor(Math.random()*names.length);while(i===cur);return i};
+  document.querySelectorAll('img[data-tcc-logo]:not([data-tcc-ready])').forEach(img=>{
+    img.dataset.tccReady='';
+    const url=i=>img.dataset.base+'TCC_logo_'+names[i]+'.svg';
+    let cur=-1,next=pick(-1);
+    const shuffle=()=>{
+      cur=next; img.src=url(cur);
+      next=pick(cur); new Image().src=url(next); // preload the next one so the swap is instant
+    };
+    img.tccShuffle=shuffle;
+    const t=(img.dataset.trigger||'load').split(/\s+/);
+    shuffle();
+    if(t.includes('hover')) img.addEventListener('mouseenter',shuffle);
+    if(t.includes('click')) img.addEventListener('click',shuffle);
+    if(t.includes('view')){
+      let seen=true;
+      new IntersectionObserver(([e])=>{ if(e.isIntersecting&&!seen) shuffle(); seen=e.isIntersecting; }).observe(img);
+    }
+  });
+  window.tccShuffle=()=>document.querySelectorAll('img[data-tcc-logo]').forEach(i=>i.tccShuffle&&i.tccShuffle());
+})();
+</script>

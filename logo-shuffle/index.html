@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex, notranslate, noai, noimageai">
+<meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet">
+<meta name="referrer" content="no-referrer">
+<title>Clapham Shuffle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Instrument+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a bar sign tool, loud and quick
+   IDEA: a sign-shop proof on the wall, one lockup at a time
+   PICTURE: the lockup itself, filling the field
+   COLOUR and TYPE: flat field colour edge to edge, Anton for the button
+   LAYOUT: logo centred large, controls in one row under it */
+:root{color-scheme:light dark;--field:#d23a2f;--ink:#111}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--field);color:var(--ink);font:16px/1.5 "Instrument Sans",system-ui,sans-serif;overflow-x:clip;display:flex;flex-direction:column;transition:background .25s}
+main{flex:1;display:grid;place-items:center;padding:clamp(20px,5vw,72px) max(5vw,16px) 12px}
+#logo{width:min(1100px,100%);height:auto;display:block}
+#altIn.pop{transform-box:fill-box;transform-origin:center}
+.pop{animation:pop .28s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{from{opacity:0;transform:translateY(6px) rotate(-1.5deg)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pop{animation:none}body{transition:none}}
+.bar{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:center;padding:16px max(5vw,16px) clamp(24px,4vw,48px)}
+button{font:inherit;cursor:pointer;border:0;color:inherit}
+button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+#shuffle{font:400 clamp(22px,3vw,30px)/1 Anton,Impact,sans-serif;letter-spacing:.02em;background:#111;color:#fff;padding:16px 34px;border-radius:999px;box-shadow:0 5px 0 #000;transition:transform .08s,box-shadow .08s}
+#shuffle:active{transform:translateY(4px);box-shadow:0 1px 0 #000}
+#count{font-weight:600;min-width:7.5em;text-align:center;font-variant-numeric:tabular-nums}
+.ghost{background:rgba(255,255,255,.18);padding:10px 16px;border-radius:999px;min-height:44px;font-weight:600}
+.ghost:hover{background:rgba(255,255,255,.3)}
+.sw{display:flex;gap:8px}
+.sw button{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,0,0,.35);padding:0}
+.sw button[aria-pressed=true]{border-color:#fff;box-shadow:0 0 0 2px #111}
+.back{color:inherit;font-size:13px;font-weight:600}
+.hint{font-size:13px;opacity:.75;width:100%;text-align:center}
+#msg{font-size:13px;min-height:1.5em}
+</style>
+</head>
+<body>
+<main>
+  <svg id="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 676.15 245.71" role="img" aria-label="The Corner Clapham logo">
+    <g id="corner"></g><g id="alt"><g id="altIn"></g></g>
+  </svg>
+</main>
+<div class="bar">
+  <button id="shuffle" type="button">Shuffle</button>
+  <span id="count" aria-live="polite">Loading…</span>
+  <button class="ghost" id="copy" type="button">Copy SVG</button>
+  <div class="sw" role="group" aria-label="Background colour"></div>
+  <span id="msg"></span>
+  <p class="hint">Space or Enter to shuffle. Arrow keys step through in order. <a class="back" href="../">All brand tools</a></p>
+</div>
+<script>
+{
+  const logo = document.getElementById('logo');
+  const cornerG = document.getElementById('corner');
+  const altG = document.getElementById('alt');
+  const altIn = document.getElementById('altIn');
+  const count = document.getElementById('count');
+  const msg = document.getElementById('msg');
+  const swWrap = document.querySelector('.sw');
+  const colours = ['#d23a2f', '#f2c230', '#3b6fd8', '#f19ac0', '#3aa66a'];
+  let data = null, cur = -1;
+
+  swWrap.innerHTML = colours.map((c, i) =>
+    `<button type="button" style="background:${c}" aria-label="Background ${c}" aria-pressed="${i === 0}" data-c="${c}"></button>`).join('');
+  swWrap.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    document.body.style.setProperty('--field', b.dataset.c);
+    swWrap.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+  });
+
+  const show = i => {
+    cur = i;
+    const v = data.variants[i];
+    altG.setAttribute('transform', v.t);
+    altIn.innerHTML = v.g;
+    altIn.classList.remove('pop'); void altIn.getBoundingClientRect(); altIn.classList.add('pop');
+    count.textContent = `No. ${v.n} of ${data.variants.length}`;
+    try { history.replaceState(null, '', '#v' + v.n); } catch (e) {}
+  };
+  const shuffle = () => {
+    const n = data.variants.length;
+    let i; do { i = Math.floor(Math.random() * n); } while (n > 1 && i === cur);
+    show(i);
+  };
+  const step = d => show((cur + d + data.variants.length) % data.variants.length);
+
+  document.getElementById('shuffle').addEventListener('click', () => data && shuffle());
+  document.addEventListener('keydown', e => {
+    if (!data || e.target.closest('input,textarea')) return;
+    if ((e.key === ' ' || e.key === 'Enter') && e.target.tagName !== 'BUTTON') { e.preventDefault(); shuffle(); }
+    if (e.key === 'ArrowRight') step(1);
+    if (e.key === 'ArrowLeft') step(-1);
+  });
+
+  document.getElementById('copy').addEventListener('click', async () => {
+    if (!data) return;
+    const v = data.variants[cur];
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${data.viewBox}"><g>${data.corner}</g><g transform="${v.t}">${v.g}</g></svg>`;
+    try { await navigator.clipboard.writeText(svg); msg.textContent = `Copied variant ${v.n}`; }
+    catch (e) { msg.textContent = 'Clipboard blocked here'; }
+    setTimeout(() => msg.textContent = '', 2200);
+  });
+
+  fetch('clapham.json').then(r => r.json()).then(d => {
+    data = d;
+    logo.setAttribute('viewBox', d.viewBox);
+    cornerG.innerHTML = d.corner;
+    const m = /^#v(\d+)$/.exec(location.hash);
+    const i = m ? d.variants.findIndex(v => v.n === +m[1]) : -1;
+    i >= 0 ? show(i) : shuffle();
+  }).catch(() => { count.textContent = 'Could not load variants'; });
+}
+</script>
+</body>
+</html>
