@@ -44,6 +44,9 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .back{color:inherit;font-size:13px;font-weight:600}
 .hint{font-size:13px;opacity:.75;text-align:center;margin:0}
 #msg{font-size:13px;min-height:1.5em}
+.seg{display:flex;background:rgba(0,0,0,.18);border-radius:999px;padding:4px}
+.seg button{min-height:40px;padding:0 18px;border-radius:999px;background:none;font-weight:600}
+.seg button[aria-pressed=true]{background:#111;color:#fff}
 </style>
 </head>
 <body>
@@ -58,6 +61,10 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
     <span id="count" aria-live="polite">Loading…</span>
   </div>
   <div class="tools">
+    <div class="seg" role="group" aria-label="Clapham style">
+      <button type="button" data-style="script" aria-pressed="true">Script</button>
+      <button type="button" data-style="line" aria-pressed="false">Line</button>
+    </div>
     <button class="ghost" id="copy" type="button">Copy SVG</button>
     <div class="sw" role="group" aria-label="Background colour"></div>
     <span id="msg"></span>
@@ -74,7 +81,10 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
   const msg = document.getElementById('msg');
   const swWrap = document.querySelector('.sw');
   const colours = ['#d23a2f', '#f2c230', '#3b6fd8', '#f19ac0', '#3aa66a'];
-  let data = null, cur = -1;
+  const styles = { script: { file: 'clapham.json', key: 'v' }, line: { file: 'clapham-line.json', key: 'l' } };
+  const cache = {};
+  const seg = document.querySelector('.seg');
+  let data = null, cur = -1, style = 'script';
 
   swWrap.innerHTML = colours.map((c, i) =>
     `<button type="button" style="background:${c}" aria-label="Background ${c}" aria-pressed="${i === 0}" data-c="${c}"></button>`).join('');
@@ -91,7 +101,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
     altIn.innerHTML = v.g;
     altIn.classList.remove('pop'); void altIn.getBoundingClientRect(); altIn.classList.add('pop');
     count.textContent = `No. ${v.n} of ${data.variants.length}`;
-    try { history.replaceState(null, '', '#v' + v.n); } catch (e) {}
+    try { history.replaceState(null, '', '#' + styles[style].key + v.n); } catch (e) {}
   };
   const shuffle = () => {
     const n = data.variants.length;
@@ -112,19 +122,29 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
     if (!data) return;
     const v = data.variants[cur];
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${data.viewBox}"><g>${data.corner}</g><g transform="${v.t}">${v.g}</g></svg>`;
-    try { await navigator.clipboard.writeText(svg); msg.textContent = `Copied variant ${v.n}`; }
+    try { await navigator.clipboard.writeText(svg); msg.textContent = `Copied ${style} ${v.n}`; }
     catch (e) { msg.textContent = 'Clipboard blocked here'; }
     setTimeout(() => msg.textContent = '', 2200);
   });
 
-  fetch('clapham.json').then(r => r.json()).then(d => {
-    data = d;
-    logo.setAttribute('viewBox', d.viewBox);
-    cornerG.innerHTML = d.corner;
-    const m = /^#v(\d+)$/.exec(location.hash);
-    const i = m ? d.variants.findIndex(v => v.n === +m[1]) : -1;
-    i >= 0 ? show(i) : shuffle();
-  }).catch(() => { count.textContent = 'Could not load variants'; });
+  const load = (st, n) => {
+    const p = cache[st] || (cache[st] = fetch(styles[st].file).then(r => { if (!r.ok) throw r; return r.json(); }));
+    count.textContent = 'Loading…';
+    p.then(d => {
+      style = st; data = d; cur = -1;
+      seg.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', b.dataset.style === st));
+      logo.setAttribute('viewBox', d.viewBox);
+      cornerG.innerHTML = d.corner;
+      const i = n ? d.variants.findIndex(v => v.n === n) : -1;
+      i >= 0 ? show(i) : shuffle();
+    }).catch(() => { delete cache[st]; count.textContent = 'Could not load variants'; });
+  };
+  seg.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (b && b.dataset.style !== style) load(b.dataset.style);
+  });
+  const m = /^#([vl])(\d+)$/.exec(location.hash);
+  load(m && m[1] === 'l' ? 'line' : 'script', m ? +m[2] : 0);
 }
 </script>
 </body>
