@@ -32,12 +32,12 @@ main{flex:1;display:grid;place-items:center;padding:clamp(20px,5vw,72px) max(5vw
 .main-ctl{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(100%,380px)}
 .tools{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center;justify-content:center}
 button{font:inherit;cursor:pointer;border:0;color:inherit}
-button:focus-visible{outline:3px solid #fff;outline-offset:3px}
+button:focus-visible{outline:3px solid #111;outline-offset:3px}
 #shuffle{font:400 clamp(30px,5vw,40px)/1 Anton,Impact,sans-serif;letter-spacing:.02em;background:#111;color:#fff;width:100%;padding:24px 40px;border-radius:999px;box-shadow:0 5px 0 #000;transition:transform .08s,box-shadow .08s}
 #shuffle:active{transform:translateY(4px);box-shadow:0 1px 0 #000}
 #count{font-weight:600;font-size:17px;text-align:center;font-variant-numeric:tabular-nums}
-.ghost{background:rgba(255,255,255,.18);padding:10px 16px;border-radius:999px;min-height:44px;font-weight:600}
-.ghost:hover{background:rgba(255,255,255,.3)}
+.ghost{background:rgba(0,0,0,.12);padding:10px 16px;border-radius:999px;min-height:44px;font-weight:600}
+.ghost:hover{background:rgba(0,0,0,.2)}
 .sw{display:flex;gap:8px}
 .sw button{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,0,0,.35);padding:0}
 .sw button[aria-pressed=true]{border-color:#fff;box-shadow:0 0 0 2px #111}
@@ -80,7 +80,7 @@ button:focus-visible{outline:3px solid #fff;outline-offset:3px}
   const count = document.getElementById('count');
   const msg = document.getElementById('msg');
   const swWrap = document.querySelector('.sw');
-  const colours = ['#d23a2f', '#f2c230', '#3b6fd8', '#f19ac0', '#3aa66a'];
+  const colours = ['#d23a2f', '#ffffff', '#f2c230', '#3b6fd8', '#f19ac0', '#3aa66a'];
   const styles = { script: { file: 'clapham.json', key: 'v' }, line: { file: 'clapham-line.json', key: 'l' } };
   const cache = {};
   const seg = document.querySelector('.seg');

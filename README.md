@@ -9,7 +9,7 @@ Instagram poster editors for The Corner Clapham. Each page runs entirely in the 
 
 ## Logo shuffle
 
-- `logo-shuffle/index.html`: shuffle tool. Script / Line switch, Space or Enter re-rolls, arrow keys step through, `#v12` links to script variant 12 and `#l12` to line variant 12, Copy SVG copies the current lockup. Loads `clapham.json` and `clapham-line.json`, so serve the folder rather than opening the file directly.
+- `logo-shuffle/index.html`: shuffle tool. Script / Line switch, background colours (including white), Space or Enter re-rolls, arrow keys step through, `#v12` links to script variant 12 and `#l12` to line variant 12, Copy SVG copies the current lockup. Loads `clapham.json` and `clapham-line.json`, so serve the folder rather than opening the file directly.
 - `logo-shuffle/logos/TCC_logo_01.svg` to `_35.svg`: standalone script lockups, 18 to 21 KB each. `TCC_logo_line_01.svg` to `_35.svg`: line lockups, about 10 KB each.
 - `logo-shuffle/embed-snippet.html`: paste-in `<img>` + script for a website. Set `data-base` to wherever `logos/` is hosted. `data-style="line"` switches to the line lockups. `data-trigger` takes `load` (default), `hover`, `click` and `view`, space-separated; `tccShuffle()` re-rolls from your own code.
 - `logo-shuffle/source/`: the artwork. `main.svg` is THE CORNER with the original Clapham (used for position only, not in the shuffle); `alternates/clapham_NN.svg` are the 35 exports. `line/main.svg` is the line lockup with its original path (position only); `line/alternates/line_NN.svg` are the 35 stroked paths (exported as Asset 3 to 37, renumbered 01 to 35). Line paths are used at their exported size, so the 5px stroke matches, left-aligned and top-aligned to the original path.
