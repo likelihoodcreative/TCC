@@ -40,6 +40,9 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
 .ghost:hover{background:rgba(0,0,0,.2)}
 .ghost[aria-pressed=true]{background:#111;color:#fff}
 .paper{position:fixed;inset:-20%;pointer-events:none;z-index:5;background:url(../assets/images/paper.webp) center/cover;opacity:.4}
+.pctl{display:flex;flex-wrap:wrap;gap:10px 22px;justify-content:center;align-items:center}.pctl[hidden]{display:none}
+.pctl label{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
+.pctl input{width:140px;accent-color:#111}.pctl output{min-width:3.2em;font-variant-numeric:tabular-nums}
 .paper[hidden]{display:none}
 .sw{display:flex;gap:8px}
 .sw button{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,0,0,.35);padding:0}
@@ -80,6 +83,10 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
     <button class="ghost" id="copy" type="button">Copy SVG</button>
     <div class="sw" role="group" aria-label="Background colour"></div>
     <span id="msg"></span>
+  </div>
+  <div class="pctl" id="paperCtl" hidden>
+    <label>Strength <input type="range" id="paperAmt" min="5" max="100" value="40"> <output id="paperAmtV">40%</output></label>
+    <label>Displacement <input type="range" id="paperWarp" min="0" max="100" value="40"> <output id="paperWarpV">40%</output></label>
   </div>
   <p class="hint">Space or Enter to shuffle. Arrow keys step through in order. <a class="back" href="../">All brand tools</a></p>
 </div>
@@ -163,10 +170,15 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
   paperBtn.addEventListener('click', () => {
     const on = paperLayer.hidden;
     if (on && !paperLayer.style.transform) rollPaper();
-    paperLayer.hidden = !on; paperNew.hidden = !on; paperBtn.setAttribute('aria-pressed', on);
+    paperLayer.hidden = !on; paperNew.hidden = !on; paperCtl.hidden = !on; paperBtn.setAttribute('aria-pressed', on);
     document.getElementById('ink').setAttribute('filter', on ? 'url(#warp)' : '');
   });
   paperNew.addEventListener('click', rollPaper);
+  // Strength = texture opacity; Displacement = filter scale (40% = 2, the original setting)
+  const paperCtl = document.getElementById('paperCtl'), dmap = document.querySelector('feDisplacementMap');
+  const amt = document.getElementById('paperAmt'), warp = document.getElementById('paperWarp');
+  amt.addEventListener('input', () => { paperLayer.style.opacity = amt.value / 100; document.getElementById('paperAmtV').value = amt.value + '%'; });
+  warp.addEventListener('input', () => { dmap.setAttribute('scale', warp.value / 20); document.getElementById('paperWarpV').value = warp.value + '%'; });
 
   seg.addEventListener('click', e => {
     const b = e.target.closest('button');
