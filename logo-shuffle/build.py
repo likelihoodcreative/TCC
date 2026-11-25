@@ -6,6 +6,11 @@ then writes:
   clapham.json            all variants, used by index.html
   logos/TCC_logo_NN.svg   one standalone lockup per variant, for the website embed
 
+Line version: source/line/main.svg (logo + original stroked Clapham path, used for position only)
+and source/line/alternates/line_NN.svg (one stroked path each) give clapham-line.json and
+logos/TCC_logo_line_NN.svg. Line paths keep their size (so the 5px stroke stays consistent) and
+are top-aligned to the original path, so the gap under the wordmark is constant.
+
 Each alternate is slimmed (runs of tiny path segments, invisible below ~0.25 units, are merged
 into one straight edge) and scaled to the original Clapham's width, left-aligned to it and
 centred on its vertical middle.
@@ -75,5 +80,24 @@ for old in LOGOS.glob('*.svg'): old.unlink()
 for v in variants:
     p = LOGOS / f"TCC_logo_{v['n']:02d}.svg"
     p.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{view}"><g>{corner}</g><g transform="{v["t"]}">{v["g"]}</g></svg>')
+
+# Line version
+lmain = (SRC / 'line' / 'main.svg').read_text()
+lcorner = re.search(r'<g id="mian_logo">(.*)</g>\s*</g>\s*</svg>', lmain, re.S).group(1)
+LX, LY, LW, LH = 160.4, 73.5, 412.55, 147.97     # original path ink: left, top; canvas size
+lvars, lbottoms = [], []
+for f in sorted((SRC / 'line' / 'alternates').glob('line_*.svg')):
+    n = int(re.search(r'\d+', f.stem).group())
+    s = f.read_text()
+    vx, vy, vw, vh = map(float, re.search(r'viewBox="([^"]*)"', s).group(1).split())
+    inner = re.sub(r'\sid="[^"]*"', '', re.search(r'<svg[^>]*>(.*)</svg>', s, re.S).group(1))
+    lbottoms.append(LY + vh)
+    lvars.append({'n': n, 't': f'translate({LX - vx:.2f} {LY - vy:.2f})', 'g': inner})
+lview = f'0 0 {LW} {max(LH, max(lbottoms) + 1):.2f}'
+(R / 'clapham-line.json').write_text(json.dumps({'corner': lcorner, 'viewBox': lview, 'variants': lvars}, separators=(',', ':')))
+for v in lvars:
+    (LOGOS / f"TCC_logo_line_{v['n']:02d}.svg").write_text(
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{lview}"><g>{lcorner}</g><g transform="{v["t"]}">{v["g"]}</g></svg>')
+
 svgo(LOGOS)
-print(f'built {len(variants)} variants')
+print(f'built {len(variants)} script and {len(lvars)} line variants')

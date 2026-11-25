@@ -1,4 +1,5 @@
-<!-- The Corner Clapham: random logo. Set data-base to the folder holding the 35 SVGs in logos/ (with trailing slash). -->
+<!-- The Corner Clapham: random logo. Set data-base to the logos/ folder (with trailing slash). -->
+<!-- data-style="line" uses the line Clapham instead of the script one. -->
 <!-- data-trigger: load (default), hover, click, or view (re-rolls each time it scrolls back into view). Combine with spaces. -->
 <img data-tcc-logo data-base="https://YOUR-HOST/tcc-logos/" data-trigger="load hover"
      alt="The Corner Clapham" width="676" height="246" style="width:100%;height:auto;display:block">
@@ -8,7 +9,8 @@
   const pick=cur=>{let i;do i=Math.floor(Math.random()*names.length);while(i===cur);return i};
   document.querySelectorAll('img[data-tcc-logo]:not([data-tcc-ready])').forEach(img=>{
     img.dataset.tccReady='';
-    const url=i=>img.dataset.base+'TCC_logo_'+names[i]+'.svg';
+    const pre=img.dataset.style==='line'?'TCC_logo_line_':'TCC_logo_';
+    const url=i=>img.dataset.base+pre+names[i]+'.svg';
     let cur=-1,next=pick(-1);
     const shuffle=()=>{
       cur=next; img.src=url(cur);

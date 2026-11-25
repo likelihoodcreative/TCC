@@ -5,14 +5,14 @@ Instagram poster editors for The Corner Clapham. Each page runs entirely in the 
 - `index.html`: menu page linking to both editors
 - `corner-poster-editor.html`: What's On poster (script title, photo frame, side notes, address, THE CORNER, CLAPHAM, film look, grain, blurred border)
 - `dense-type-editor.html`: Dense Type (full-width header lines, repeated word in columns, framed photo, gradients, black / blue map)
-- `logo-shuffle/`: the logo with one of 35 alternate Clapham scripts, picked at random (see below)
+- `logo-shuffle/`: the logo with one of 35 alternate Clapham scripts, picked at random, in two styles: Script (filled) and Line (stroked path) (see below)
 
 ## Logo shuffle
 
-- `logo-shuffle/index.html`: shuffle tool. Space or Enter re-rolls, arrow keys step through, `#v12` links to a variant, Copy SVG copies the current lockup. Loads `clapham.json`, so serve the folder rather than opening the file directly.
-- `logo-shuffle/logos/TCC_logo_01.svg` to `_35.svg`: standalone lockups, 18 to 21 KB each.
-- `logo-shuffle/embed-snippet.html`: paste-in `<img>` + script for a website. Set `data-base` to wherever `logos/` is hosted. `data-trigger` takes `load` (default), `hover`, `click` and `view`, space-separated; `tccShuffle()` re-rolls from your own code.
-- `logo-shuffle/source/`: the artwork. `main.svg` is THE CORNER with the original Clapham (used for position only, not in the shuffle); `alternates/clapham_NN.svg` are the 35 exports.
+- `logo-shuffle/index.html`: shuffle tool. Script / Line switch, background colours (including white), Paper (texture over the page; not included in Copy SVG), Space or Enter re-rolls, arrow keys step through, `#v12` links to script variant 12 and `#l12` to line variant 12, Copy SVG copies the current lockup. Loads `clapham.json` and `clapham-line.json`, so serve the folder rather than opening the file directly.
+- `logo-shuffle/logos/TCC_logo_01.svg` to `_35.svg`: standalone script lockups, 18 to 21 KB each. `TCC_logo_line_01.svg` to `_35.svg`: line lockups, about 10 KB each.
+- `logo-shuffle/embed-snippet.html`: paste-in `<img>` + script for a website. Set `data-base` to wherever `logos/` is hosted. `data-style="line"` switches to the line lockups. `data-trigger` takes `load` (default), `hover`, `click` and `view`, space-separated; `tccShuffle()` re-rolls from your own code.
+- `logo-shuffle/source/`: the artwork. `main.svg` is THE CORNER with the original Clapham (used for position only, not in the shuffle); `alternates/clapham_NN.svg` are the 35 exports. `line/main.svg` is the line lockup with its original path (position only); `line/alternates/line_NN.svg` are the 35 stroked paths (exported as Asset 3 to 37, renumbered 01 to 35). Line paths are used at their exported size, so the 5px stroke matches, left-aligned and top-aligned to the original path.
 
 After changing anything in `logo-shuffle/source/`, rebuild with `python3 logo-shuffle/build.py` (needs `pip install svgpathtools`; uses `npx svgo` when Node is available). The build merges runs of sub-0.25-unit path segments in the shadow shapes, which cuts file size by about two thirds with no visible change, then scales each alternate to the original's width, left-aligned and vertically centred on it.
 
@@ -36,3 +36,7 @@ python3 build.py
 ## Crawlers
 
 Every page carries `noindex, nofollow, noarchive, nosnippet, noimageindex, noai, noimageai` robots meta tags, and `robots.txt` disallows all crawlers, with named AI crawlers listed explicitly. These are requests that well-behaved bots honour, not access control, and `robots.txt` only counts at the root of a domain.
+
+## Paper texture
+
+`assets/images/paper.webp` is the Design Syndrome papercut texture (transparent PNG, resized to 1240 x 1712). It is drawn over the design at normal blend and loaded only when Paper is switched on. Both poster editors have a Paper section (on/off, strength (default 40%), displacement (default 40%, about 1.6px: the design is nudged pixel by pixel following the texture's grain, so edges look printed), New texture, which picks a different crop and flip of the image); it is baked into the downloaded PNG and the choice is saved, so the export matches the preview. `src/paper.js` holds the shared code; `build.py` inlines it into the editors. The logo shuffle has Paper / New paper buttons, and applies the same displacement through an SVG filter (`feDisplacementMap`, scale 2); the texture is not included in Copy SVG.
