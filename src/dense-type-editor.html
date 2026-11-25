@@ -94,6 +94,12 @@ main{display:flex;align-items:center;justify-content:center;padding:28px;overflo
     <label>Ink</label><div class="swatches" id="inkSw"></div>
   </fieldset>
 
+  <fieldset><legend>Paper</legend>
+    <label class="check"><input type="checkbox" id="paper"> Paper texture</label>
+    <label>Strength <span class="v" id="paperAmtV"></span></label><input type="range" id="paperAmt" min="5" max="100" value="100">
+    <button class="btn" id="paperNew" type="button" style="width:100%;margin-top:6px">New texture</button>
+  </fieldset>
+
   <button class="btn primary" id="download">Download PNG</button>
   <div class="row" style="margin-top:8px"><button class="btn" id="reset" style="flex:1">Reset to template</button></div>
 </aside>
@@ -107,7 +113,7 @@ const M=W*0.05; // margin: 5% of frame width (double margin 10%)
 const VENUE='THE CORNER, CLAPHAM';
 const BGS=['#DE312D','#EB5E2D','#F2C230','#F08BB0','#2E7D5B','#1F4FA3','#E9E4DA','#111111'];
 const INKS=['#2A2A2A','#000000','#FFFFFF','#E9E4DA','#DE312D'];
-const DEFAULTS={l1:'Book your birthday at TCC',l2a:'44-48 Clapham High St, London SW4 7UR',l3:'BYO Cake',word:'Cake',cols:'auto',
+const DEFAULTS={paper:false,paperAmt:100,paperSeed:0,l1:'Book your birthday at TCC',l2a:'44-48 Clapham High St, London SW4 7UR',l3:'BYO Cake',word:'Cake',cols:'auto',
   sizeAdj:0,bgMode:'1',bg:'#DE312D',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#2A2A2A',frame:'pt',film:true,exposure:0,grain:20,tone:'map'};
 const KEY='dense-type-v5';
 const DEFAULT_PHOTO='data:image/jpeg;base64,__PHOTO__';
@@ -202,9 +208,16 @@ function render(forExport){
     ctx.fillStyle='#777';ctx.font='600 22px system-ui,sans-serif';ctx.textAlign='center';ctx.fillText('+ ADD PHOTO',B.x+B.w/2,B.y+B.h/2+8);
   }
   ctx.restore();
+  if(S.paper)Paper.apply(ctx,W,H,S.paperSeed,S.paperAmt/100,()=>render());
 }
 
 __PHOTOJS__
+// ---------- paper ----------
+__PAPERJS__
+function paperUI(){$('paper').checked=S.paper;$('paperAmt').value=S.paperAmt;$('paperAmtV').textContent=S.paperAmt+'%';$('paperAmt').disabled=$('paperNew').disabled=!S.paper}
+$('paper').addEventListener('change',e=>{S.paper=e.target.checked;if(S.paper&&!S.paperSeed)S.paperSeed=Paper.newSeed();paperUI();render();save()});
+$('paperAmt').addEventListener('input',e=>{S.paperAmt=+e.target.value;paperUI();render();save()});
+$('paperNew').addEventListener('click',()=>{S.paperSeed=Paper.newSeed();render();save()});
 // ---------- UI ----------
 const fields=['l1','l2a','l3','word'];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -215,7 +228,7 @@ function swatches(id,list,key){
   const p=document.createElement('input');p.type='color';p.value=S[key];
   p.oninput=e=>{S[key]=e.target.value;render();save()};p.onchange=()=>syncUI();el.appendChild(p);
 }
-function syncUI(){
+function syncUI(){paperUI();
   fields.forEach(k=>$(k).value=S[k]);
   document.querySelectorAll('#cols button').forEach(b=>b.classList.toggle('on',b.dataset.v===String(S.cols)));
   $('sizeAdj').value=S.sizeAdj;$('sizeAdjV').textContent=(S.sizeAdj>0?'+':'')+S.sizeAdj+'% · '+Math.round(W/2*(1+S.sizeAdj/100))+'px';

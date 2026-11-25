@@ -38,6 +38,9 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
 #count{font-weight:600;font-size:17px;text-align:center;font-variant-numeric:tabular-nums}
 .ghost{background:rgba(0,0,0,.12);padding:10px 16px;border-radius:999px;min-height:44px;font-weight:600}
 .ghost:hover{background:rgba(0,0,0,.2)}
+.ghost[aria-pressed=true]{background:#111;color:#fff}
+.paper{position:fixed;inset:-20%;pointer-events:none;z-index:5;background:url(../assets/images/paper.webp) center/cover}
+.paper[hidden]{display:none}
 .sw{display:flex;gap:8px}
 .sw button{width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,0,0,.35);padding:0}
 .sw button[aria-pressed=true]{border-color:#fff;box-shadow:0 0 0 2px #111}
@@ -55,6 +58,7 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
     <g id="corner"></g><g id="alt"><g id="altIn"></g></g>
   </svg>
 </main>
+<div class="paper" id="paperLayer" hidden></div>
 <div class="bar">
   <div class="main-ctl">
     <button id="shuffle" type="button">Shuffle</button>
@@ -65,6 +69,8 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
       <button type="button" data-style="script" aria-pressed="true">Script</button>
       <button type="button" data-style="line" aria-pressed="false">Line</button>
     </div>
+    <button class="ghost" id="paperBtn" type="button" aria-pressed="false">Paper</button>
+    <button class="ghost" id="paperNew" type="button" hidden>New paper</button>
     <button class="ghost" id="copy" type="button">Copy SVG</button>
     <div class="sw" role="group" aria-label="Background colour"></div>
     <span id="msg"></span>
@@ -139,6 +145,22 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
       i >= 0 ? show(i) : shuffle();
     }).catch(() => { delete cache[st]; count.textContent = 'Could not load variants'; });
   };
+  // Paper texture: assets/images/paper.webp over the whole page (Copy SVG stays clean).
+  // New paper picks a random flip and position of the image.
+  const paperBtn = document.getElementById('paperBtn'), paperNew = document.getElementById('paperNew');
+  const paperLayer = document.getElementById('paperLayer');
+  const rollPaper = () => {
+    const sx = Math.random() < .5 ? -1 : 1, sy = Math.random() < .5 ? -1 : 1;
+    paperLayer.style.transform = `scale(${sx},${sy})`;
+    paperLayer.style.backgroundPosition = `${Math.round(Math.random() * 100)}% ${Math.round(Math.random() * 100)}%`;
+  };
+  paperBtn.addEventListener('click', () => {
+    const on = paperLayer.hidden;
+    if (on && !paperLayer.style.transform) rollPaper();
+    paperLayer.hidden = !on; paperNew.hidden = !on; paperBtn.setAttribute('aria-pressed', on);
+  });
+  paperNew.addEventListener('click', rollPaper);
+
   seg.addEventListener('click', e => {
     const b = e.target.closest('button');
     if (b && b.dataset.style !== style) load(b.dataset.style);

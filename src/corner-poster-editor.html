@@ -107,6 +107,12 @@ label .v{float:right;color:#cfcfcf;font-variant-numeric:tabular-nums}
     <input type="range" id="grey" min="0" max="100" value="27" class="greyRange">
   </fieldset>
 
+  <fieldset><legend>Paper</legend>
+    <label class="check"><input type="checkbox" id="paper"> Paper texture</label>
+    <label>Strength <span class="v" id="paperAmtV"></span></label><input type="range" id="paperAmt" min="5" max="100" value="100">
+    <button class="btn" id="paperNew" type="button" style="width:100%;margin-top:6px">New texture</button>
+  </fieldset>
+
   <button class="btn primary" id="download">Download PNG</button>
   <div class="row" style="margin-top:8px">
     <button class="btn" id="reset" style="flex:1">Reset to template</button>
@@ -128,7 +134,7 @@ const BORDER_SIZE=50,BORDER_SOFT=40;
 const greyHex=g=>{const v=Math.round(255*(1-g/100)).toString(16).padStart(2,'0');return '#'+v+v+v};
 const BGS=['#DE312D','#EB5E2D','#F2C230','#2E7D5B','#1F4FA3','#D93A6A','#111111','#F3EDE2'];
 const INKS=['#2A2A2A','#000000','#FFFFFF','#F3EDE2','#EB5E2D'];
-const DEFAULTS={kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St,\nLondon SW4 7UR',bg:'#DE312D',bgMode:'1',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#2A2A2A',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
+const DEFAULTS={paper:false,paperAmt:100,paperSeed:0,kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St,\nLondon SW4 7UR',bg:'#DE312D',bgMode:'1',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#2A2A2A',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
 const KEY='corner-poster-v4';
 const DEFAULT_PHOTO='data:image/jpeg;base64,__PHOTO__';
 function loadDefaultPhoto(){const i=new Image();i.onload=()=>setPhoto(i);i.src=DEFAULT_PHOTO}
@@ -193,6 +199,7 @@ function render(forExport){
   ctx.save();ctx.translate(W/2,H/2);ctx.scale(k,k);ctx.translate(-W/2,-H/2);
   renderContent(forExport);
   ctx.restore();
+  if(S.paper)Paper.apply(ctx,W,H,S.paperSeed,S.paperAmt/100,()=>render());
 }
 function renderContent(forExport){
   ctx.fillStyle=S.ink;
@@ -414,13 +421,19 @@ function buildLUT(film,ev,bw){
   lutKey=key;return lutCache=out;
 }
 
+// ---------- paper ----------
+__PAPERJS__
+function paperUI(){$('paper').checked=S.paper;$('paperAmt').value=S.paperAmt;$('paperAmtV').textContent=S.paperAmt+'%';$('paperAmt').disabled=$('paperNew').disabled=!S.paper}
+$('paper').addEventListener('change',e=>{S.paper=e.target.checked;if(S.paper&&!S.paperSeed)S.paperSeed=Paper.newSeed();paperUI();render();save()});
+$('paperAmt').addEventListener('input',e=>{S.paperAmt=+e.target.value;paperUI();render();save()});
+$('paperNew').addEventListener('click',()=>{S.paperSeed=Paper.newSeed();render();save()});
 // ---------- UI ----------
 const fields=['kicker','title','subtitle','left','right','footer','address'];
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function borderUI(){$('border').checked=S.border;$('grey').value=S.grey;$('greyV').textContent=S.grey+'%'}
 function photoUI(){$('film').checked=S.film;$('bw').checked=S.bw;$('exposure').value=S.exposure;$('grain').value=S.grain;
   $('exposureV').textContent=(S.exposure>0?'+':'')+(S.exposure/100).toFixed(2);$('grainV').textContent=S.grain}
-function syncUI(){
+function syncUI(){paperUI();
   fields.forEach(k=>$(k).value=S[k]);
   $('titleScale').value=S.titleScale;$('swash').checked=S.swash;$('logo').checked=S.logo;
   swatches('bgSw',BGS,'bg');swatches('inkSw',INKS,'ink');swatches('bg2Sw',BGS,'bg2');swatches('bg3Sw',BGS,'bg3');
