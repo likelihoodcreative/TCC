@@ -96,7 +96,7 @@ main{display:flex;align-items:center;justify-content:center;padding:28px;overflo
 
   <fieldset><legend>Paper</legend>
     <label class="check"><input type="checkbox" id="paper"> Paper texture</label>
-    <label>Strength <span class="v" id="paperAmtV"></span></label><input type="range" id="paperAmt" min="5" max="100" value="100">
+    <label>Strength <span class="v" id="paperAmtV"></span></label><input type="range" id="paperAmt" min="5" max="100" value="40">
     <button class="btn" id="paperNew" type="button" style="width:100%;margin-top:6px">New texture</button>
   </fieldset>
 
@@ -113,7 +113,7 @@ const M=W*0.05; // margin: 5% of frame width (double margin 10%)
 const VENUE='THE CORNER, CLAPHAM';
 const BGS=['#DE312D','#EB5E2D','#F2C230','#F08BB0','#2E7D5B','#1F4FA3','#E9E4DA','#111111'];
 const INKS=['#2A2A2A','#000000','#FFFFFF','#E9E4DA','#DE312D'];
-const DEFAULTS={paper:false,paperAmt:100,paperSeed:0,l1:'Book your birthday at TCC',l2a:'44-48 Clapham High St, London SW4 7UR',l3:'BYO Cake',word:'Cake',cols:'auto',
+const DEFAULTS={paper:false,paperAmt:40,paperSeed:0,l1:'Book your birthday at TCC',l2a:'44-48 Clapham High St, London SW4 7UR',l3:'BYO Cake',word:'Cake',cols:'auto',
   sizeAdj:0,bgMode:'1',bg:'#DE312D',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#2A2A2A',frame:'pt',film:true,exposure:0,grain:20,tone:'map'};
 const KEY='dense-type-v5';
 const DEFAULT_PHOTO='data:image/jpeg;base64,__PHOTO__';
