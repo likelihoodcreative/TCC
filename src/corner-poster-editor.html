@@ -136,8 +136,8 @@ const SWASH='"Calgary Script Swash", cursive';
 const BORDER_SIZE=50,BORDER_SOFT=40;
 const greyHex=g=>{const v=Math.round(255*(1-g/100)).toString(16).padStart(2,'0');return '#'+v+v+v};
 const BGS=['#DE312D','#EB5E2D','#F2C230','#2E7D5B','#1F4FA3','#D93A6A','#111111','#F3EDE2'];
-const INKS=['#2A2A2A','#000000','#FFFFFF','#F3EDE2','#EB5E2D'];
-const DEFAULTS={paper:false,paperAmt:30,paperWarp:10,paperSeed:0,kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St,\nLondon SW4 7UR',bg:'#DE312D',bgMode:'1',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#2A2A2A',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
+const INKS=['#0D0D0D','#000000','#FFFFFF','#F3EDE2','#EB5E2D'];
+const DEFAULTS={paper:false,paperAmt:30,paperWarp:10,paperSeed:0,kicker:"WHAT'S ON",title:'Wednesday',titleScale:100,swash:false,subtitle:'JUBEL',left:'£5\nPINTS',right:'ALL\nNIGHT',footer:'WEDNESDAYS',address:'44-48 Clapham High St,\nLondon SW4 7UR',bg:'#DE312D',bgMode:'1',bg2:'#EB5E2D',bg3:'#F2C230',ink:'#0D0D0D',logo:true,border:false,grey:27,film:true,exposure:0,grain:10,bw:false};
 const KEY='corner-poster-v4';
 const DEFAULT_PHOTO='data:image/jpeg;base64,__PHOTO__';
 function loadDefaultPhoto(){const i=new Image();i.onload=()=>setPhoto(i);i.src=DEFAULT_PHOTO}
@@ -145,6 +145,7 @@ let S=Object.assign({},DEFAULTS);
 try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s)Object.assign(S,s)}catch(e){}
 for(const k in DEFAULTS)if(S[k]==null)S[k]=DEFAULTS[k];
 S.grain=Math.min(20,S.grain);
+if(S.ink==='#2A2A2A')S.ink='#0D0D0D'; // off black is now RGB 13,13,13
 let img=null, pan={x:0,y:0}, zoom=1;
 
 const cv=document.getElementById('stage'),ctx=cv.getContext('2d');
