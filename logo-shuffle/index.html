@@ -55,7 +55,13 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
 <body>
 <main>
   <svg id="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 676.15 245.71" role="img" aria-label="The Corner Clapham logo">
-    <g id="corner"></g><g id="alt"><g id="altIn"></g></g>
+    <defs>
+      <filter id="warp" x="-2%" y="-2%" width="104%" height="104%" color-interpolation-filters="sRGB">
+        <feImage href="../assets/images/paper.webp" x="0" y="0" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" result="tex"/>
+        <feDisplacementMap in="SourceGraphic" in2="tex" scale="2" xChannelSelector="R" yChannelSelector="A"/>
+      </filter>
+    </defs>
+    <g id="ink"><g id="corner"></g><g id="alt"><g id="altIn"></g></g></g>
   </svg>
 </main>
 <div class="paper" id="paperLayer" hidden></div>
@@ -158,6 +164,7 @@ button:focus-visible{outline:3px solid #111;outline-offset:3px}
     const on = paperLayer.hidden;
     if (on && !paperLayer.style.transform) rollPaper();
     paperLayer.hidden = !on; paperNew.hidden = !on; paperBtn.setAttribute('aria-pressed', on);
+    document.getElementById('ink').setAttribute('filter', on ? 'url(#warp)' : '');
   });
   paperNew.addEventListener('click', rollPaper);
 
